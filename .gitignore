@@ -1,0 +1,4 @@
+.vscode
+*.mp4
+*.old.py
+.DS_STORE
