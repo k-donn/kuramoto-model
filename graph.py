@@ -10,6 +10,7 @@ An animation of synchronization of sine functions
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.animation import FuncAnimation
+from matplotlib.ticker import FuncFormatter
 
 plt.style.use("ggplot")
 
@@ -17,7 +18,7 @@ PHASE_0 = 0
 PHASE_1 = 0.5*np.pi
 PHASE_2 = np.pi
 K_CONST = 0.004
-X_LIM = 4*np.pi
+X_LIM = 8*np.pi
 
 
 def format_axes(axes):
@@ -41,6 +42,10 @@ def format_axes(axes):
     axes.set_ylabel("Y Values")
 
     axes.text(3.0*np.pi, 0.9, f"Coupling: K={K_CONST}")
+
+    x_axis = axes.get_xaxis()
+    tick_locs = np.arange(0, X_LIM+0.1, np.pi)
+    x_axis.set_ticks(tick_locs)
 
 
 def init_anim():
