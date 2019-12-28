@@ -16,6 +16,7 @@ plt.style.use("ggplot")
 
 PHASE_0 = 0
 PHASE_1 = 0.5*np.pi
+PHASE_2 = 1*np.pi
 
 
 def format_axes(axes):
@@ -34,7 +35,7 @@ def format_axes(axes):
     axes.set_ylim(-1.05, 1.05)
 
 
-def animate(frame, lines, xdata, ydata0, ydata1):
+def animate(frame, lines, xdata, ydata0, ydata1, ydata2):
     """Redraw all artists on the plot.
 
     Parameters
@@ -55,10 +56,14 @@ def animate(frame, lines, xdata, ydata0, ydata1):
 
     """
     xdata.append(frame)
+
     ydata0.append(np.sin(frame))
-    ydata1.append(np.sin(frame + 0.5*np.pi))
+    ydata1.append(np.sin(frame + PHASE_1))
+    ydata2.append(np.sin(frame + PHASE_2))
+
     lines[0].set_data(xdata, ydata0)
     lines[1].set_data(xdata, ydata1)
+    lines[2].set_data(xdata, ydata2)
     return lines
 
 
@@ -67,13 +72,14 @@ def main():
     fig = plt.figure(figsize=(8.5, 6.4))
     axes = fig.add_subplot(111)
     format_axes(axes)
-    xdata, ydata0, ydata1 = [], [], []
+    xdata, ydata0, ydata1, ydata2 = [], [], [], []
     lines = []
     lines.append(plt.plot([], [], "o", markersize=1,
                           animated=True, color="r")[0])
     lines.append(plt.plot([], [], lw=2, animated=True, color="g")[0])
+    lines.append(plt.plot([], [], lw=2, animated=True, color="b")[0])
     amim = FuncAnimation(fig, animate, frames=np.linspace(0, 4*np.pi, 512),
-                         interval=25, repeat=False, blit=True, fargs=(lines, xdata, ydata0, ydata1))
+                         interval=25, repeat=False, blit=True, fargs=(lines, xdata, ydata0, ydata1, ydata2))
 
     plt.show()
 
