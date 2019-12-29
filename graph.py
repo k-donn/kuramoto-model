@@ -4,16 +4,17 @@ python graph.py
 description:
 An animation of synchronization of sine functions
 """
+from operator import itemgetter
+
 # TODO
 # Add type hints and type docstrings
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.animation import FuncAnimation
+from matplotlib.animation import FFMpegWriter, FuncAnimation
 from matplotlib.ticker import FuncFormatter, MultipleLocator
 
-
-K_CONST = 0.003
+K_CONST = 0.1
 X_LIM = 8*np.pi
 
 
@@ -80,7 +81,7 @@ def format_axes(axes):
     axes.set_xlabel("X Values")
     axes.set_ylabel("Y Values")
 
-    axes.text(X_LIM - np.pi * 2, 0.9, f"Coupling: K={K_CONST}", zorder=4)
+    axes.text(X_LIM - np.pi * 2, 0.9, f"Coupling: K={K_CONST}")
 
     x_axis = axes.get_xaxis()
     y_axis = axes.get_yaxis()
@@ -126,14 +127,12 @@ def init_anim():
     return []
 
 
-def animate(frame, lines, xdata, line_props):
+def animate(frame, xdata, line_props):
     """Redraw all artists on the plot.
 
     Parameters
     ----------
     frame :
-
-    lines :
 
     xdata :
 
@@ -152,14 +151,14 @@ def animate(frame, lines, xdata, line_props):
         line["data"].append(np.sin(frame + line["phase"]))
         line["line"].set_data(xdata, line["data"])
 
-    return lines
+    return list(map(itemgetter("line"), line_props))
 
 
 def main():
     """Run all executable code"""
     format_plt()
 
-    fig = plt.figure(figsize=(10.5, 6.4), dpi=180)
+    fig = plt.figure(figsize=(10.5, 6.4), dpi=225)
     axes = fig.add_subplot(111)
     format_axes(axes)
 
@@ -171,7 +170,7 @@ def main():
     lines.append(*plt.plot([], [], lw=2, animated=True, color="r"))
     lines.append(*plt.plot([], [], lw=2, animated=True, color="g"))
     lines.append(*plt.plot([], [], lw=2, animated=True, color="b"))
-    # lines.append(*plt.plot([], [], lw=2, animated=True, color="r"))
+    lines.append(*plt.plot([], [], lw=2, animated=True, color="c"))
 
     line_props = []
     for i, line in enumerate(lines):
@@ -184,8 +183,13 @@ def main():
                         hspace=0.2,
                         wspace=0.2)
 
-    amim = FuncAnimation(fig, animate, init_func=init_anim, frames=np.linspace(0, X_LIM, 512),
-                         interval=25, repeat=False, blit=True, fargs=(lines, xdata, line_props))
+    writer = FFMpegWriter(fps=40, bitrate=250000,
+                          metadata=dict(author="/u/ilikeplanes86"))
+
+    anim = FuncAnimation(fig, animate, init_func=init_anim, frames=np.linspace(0, X_LIM, 512),
+                         interval=25, repeat=False, blit=True, fargs=(xdata, line_props))
+
+    anim.save(f"recordings/{len(lines)}lines-{K_CONST}.mp4", writer=writer)
 
     plt.show()
 
