@@ -6,7 +6,6 @@ An animation of synchronization of sine functions
 """
 # TODO
 # Add type hints and type docstrings
-# Use iteration to calculate phase shift and plot
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.animation import FuncAnimation
@@ -23,6 +22,9 @@ X_LIM = 8*np.pi
 
 def format_pi(denominator):
     """Return a formatting function that uses the denominator provided
+
+    Parameters
+    ----------
 
     denominator :
 
@@ -91,6 +93,28 @@ def format_axes(axes):
     y_axis.set_major_locator(y_maj_locator)
 
 
+def diff_el_dict(target_key, target_dict):
+    """Return the difference between all other elements and the target element
+
+    Parameters
+    ----------
+
+    target_key :
+
+    target_dict :
+
+    Returns
+    -------
+
+    """
+    res = 0
+    target_value = target_dict[target_key]
+    for key, value in target_dict.items():
+        if key != target_key:
+            res += np.sin(value - target_value)
+    return res
+
+
 def init_anim():
     """Initialize the animation"""
     return []
@@ -118,17 +142,14 @@ def animate(frame, lines, xdata, y_datas, phases):
     """
     xdata.append(frame)
 
-    phases["phase_0"] = phases["phase_0"] + K_CONST * \
-        (np.sin(phases["phase_1"] - phases["phase_0"]) +
-         np.sin(phases["phase_2"] - phases["phase_0"]))
+    phases["phase_0"] = phases["phase_0"] + \
+        K_CONST * diff_el_dict("phase_0", phases)
 
-    phases["phase_1"] = phases["phase_1"] + K_CONST * \
-        (np.sin(phases["phase_0"] - phases["phase_1"]) +
-         np.sin(phases["phase_2"] - phases["phase_1"]))
+    phases["phase_1"] = phases["phase_1"] + \
+        K_CONST * diff_el_dict("phase_1", phases)
 
-    phases["phase_2"] = phases["phase_2"] + K_CONST * \
-        (np.sin(phases["phase_0"] - phases["phase_2"]) +
-         np.sin(phases["phase_1"] - phases["phase_2"]))
+    phases["phase_2"] = phases["phase_2"] + \
+        K_CONST * diff_el_dict("phase_2", phases)
 
     y_datas["ydata0"].append(np.sin(frame + phases["phase_0"]))
     y_datas["ydata1"].append(np.sin(frame + phases["phase_1"]))
