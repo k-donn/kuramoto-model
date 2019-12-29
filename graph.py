@@ -13,10 +13,8 @@ from matplotlib.ticker import FuncFormatter, MultipleLocator
 
 plt.style.use("ggplot")
 
-PHASE_0 = 0
-PHASE_1 = 0.5*np.pi
-PHASE_2 = np.pi
-K_CONST = 0.004
+
+K_CONST = 0.1
 X_LIM = 8*np.pi
 
 
@@ -93,8 +91,9 @@ def format_axes(axes):
     y_axis.set_major_locator(y_maj_locator)
 
 
-def diff_el_dict(target_key, target_dict):
-    """Return the difference between all other elements and the target element
+def sum_of_phase_diffs(target_index, lines):
+    """Return the sum of the sines of the differences between 
+    all other elements and the target element
 
     Parameters
     ----------
@@ -108,10 +107,10 @@ def diff_el_dict(target_key, target_dict):
 
     """
     res = 0
-    target_value = target_dict[target_key]
-    for key, value in target_dict.items():
-        if key != target_key:
-            res += np.sin(value - target_value)
+    target_value = lines[target_index]["phase"]
+    for i, line in enumerate(lines):
+        if i != target_index:
+            res += np.sin(line["phase"] - target_value)
     return res
 
 
@@ -120,7 +119,7 @@ def init_anim():
     return []
 
 
-def animate(frame, lines, xdata, y_datas, phases):
+def animate(frame, lines, xdata, line_props):
     """Redraw all artists on the plot.
 
     Parameters
@@ -131,9 +130,7 @@ def animate(frame, lines, xdata, y_datas, phases):
 
     xdata :
 
-    y_datas :
-
-    phases :
+    line_props :
 
 
     Returns
@@ -142,22 +139,11 @@ def animate(frame, lines, xdata, y_datas, phases):
     """
     xdata.append(frame)
 
-    phases["phase_0"] = phases["phase_0"] + \
-        K_CONST * diff_el_dict("phase_0", phases)
-
-    phases["phase_1"] = phases["phase_1"] + \
-        K_CONST * diff_el_dict("phase_1", phases)
-
-    phases["phase_2"] = phases["phase_2"] + \
-        K_CONST * diff_el_dict("phase_2", phases)
-
-    y_datas["ydata0"].append(np.sin(frame + phases["phase_0"]))
-    y_datas["ydata1"].append(np.sin(frame + phases["phase_1"]))
-    y_datas["ydata2"].append(np.sin(frame + phases["phase_2"]))
-
-    lines[0].set_data(xdata, y_datas["ydata0"])
-    lines[1].set_data(xdata, y_datas["ydata1"])
-    lines[2].set_data(xdata, y_datas["ydata2"])
+    for i, line in enumerate(line_props):
+        line["phase"] = line["phase"] + K_CONST * \
+            sum_of_phase_diffs(i, line_props)
+        line["data"].append(np.sin(frame + line["phase"]))
+        line["line"].set_data(xdata, line["data"])
 
     return lines
 
@@ -168,15 +154,19 @@ def main():
     axes = fig.add_subplot(111)
     format_axes(axes)
 
-    xdata, ydata0, ydata1, ydata2 = [], [], [], []
+    xdata = []
+
+    phases = [0, 0.5*np.pi, np.pi, -0.5*np.pi]
 
     lines = []
     lines.append(*plt.plot([], [], lw=2, animated=True, color="r"))
     lines.append(*plt.plot([], [], lw=2, animated=True, color="g"))
     lines.append(*plt.plot([], [], lw=2, animated=True, color="b"))
+    lines.append(*plt.plot([], [], lw=2, animated=True, color="k"))
 
-    phases = {"phase_0": PHASE_0, "phase_1": PHASE_1, "phase_2": PHASE_2}
-    y_datas = {"ydata0": ydata0, "ydata1": ydata1, "ydata2": ydata2}
+    line_props = []
+    for i, line in enumerate(lines):
+        line_props.append({"phase": phases[i], "data": [], "line": line})
 
     plt.subplots_adjust(top=0.88,
                         bottom=0.11,
@@ -186,7 +176,7 @@ def main():
                         wspace=0.2)
 
     amim = FuncAnimation(fig, animate, init_func=init_anim, frames=np.linspace(0, X_LIM, 512),
-                         interval=25, repeat=False, blit=True, fargs=(lines, xdata, y_datas, phases))
+                         interval=25, repeat=False, blit=True, fargs=(lines, xdata, line_props))
 
     plt.show()
 
