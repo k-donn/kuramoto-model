@@ -6,15 +6,14 @@ An animation of synchronization of sine functions
 """
 # TODO
 # Add type hints and type docstrings
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.animation import FuncAnimation
 from matplotlib.ticker import FuncFormatter, MultipleLocator
 
-plt.style.use("ggplot")
 
-
-K_CONST = 0.1
+K_CONST = 0.003
 X_LIM = 8*np.pi
 
 
@@ -47,10 +46,18 @@ def format_pi(denominator):
         mult = int(value/(denominator * np.pi))
         if mult == 0:
             res = "0"
+        elif mult == 1:
+            res = "π"
         else:
             res = f"{mult}π"
         return res
     return multiple_of_pi
+
+
+def format_plt():
+    """Change any global style params"""
+    mpl.rcParams["font.family"] = "Poppins"
+    plt.style.use("ggplot")
 
 
 def format_axes(axes):
@@ -92,7 +99,7 @@ def format_axes(axes):
 
 
 def sum_of_phase_diffs(target_index, lines):
-    """Return the sum of the sines of the differences between 
+    """Return the sum of the sines of the differences between
     all other elements and the target element
 
     Parameters
@@ -150,6 +157,8 @@ def animate(frame, lines, xdata, line_props):
 
 def main():
     """Run all executable code"""
+    format_plt()
+
     fig = plt.figure(figsize=(10.5, 6.4), dpi=180)
     axes = fig.add_subplot(111)
     format_axes(axes)
@@ -162,7 +171,7 @@ def main():
     lines.append(*plt.plot([], [], lw=2, animated=True, color="r"))
     lines.append(*plt.plot([], [], lw=2, animated=True, color="g"))
     lines.append(*plt.plot([], [], lw=2, animated=True, color="b"))
-    lines.append(*plt.plot([], [], lw=2, animated=True, color="k"))
+    # lines.append(*plt.plot([], [], lw=2, animated=True, color="r"))
 
     line_props = []
     for i, line in enumerate(lines):
