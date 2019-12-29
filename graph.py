@@ -10,7 +10,7 @@ An animation of synchronization of sine functions
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.animation import FuncAnimation
-from matplotlib.ticker import FuncFormatter
+from matplotlib.ticker import FuncFormatter, MultipleLocator
 
 plt.style.use("ggplot")
 
@@ -19,6 +19,38 @@ PHASE_1 = 0.5*np.pi
 PHASE_2 = np.pi
 K_CONST = 0.004
 X_LIM = 8*np.pi
+
+
+def format_pi(denominator):
+    """Return a formatting function that uses the denominator provided
+
+    denominator : 
+
+    Returns
+    -------
+
+    """
+    def multiple_of_pi(value, _position):
+        """Return the multiple that value is of (pi*denominator)
+
+        Parameters
+        ----------
+        value :
+
+        _position :
+
+        Returns
+        -------
+
+        """
+        res = ""
+        mult = int(value/(denominator * np.pi))
+        if mult == 0:
+            res = "0"
+        else:
+            res = f"{mult}π"
+        return res
+    return multiple_of_pi
 
 
 def format_axes(axes):
@@ -41,11 +73,18 @@ def format_axes(axes):
     axes.set_xlabel("X Values")
     axes.set_ylabel("Y Values")
 
-    axes.text(3.0*np.pi, 0.9, f"Coupling: K={K_CONST}")
+    axes.text(X_LIM - np.pi * 2, 0.9, f"Coupling: K={K_CONST}", zorder=4)
 
     x_axis = axes.get_xaxis()
-    tick_locs = np.arange(0, X_LIM+0.1, np.pi)
-    x_axis.set_ticks(tick_locs)
+
+    maj_locator = MultipleLocator(np.pi)
+    x_axis.set_major_locator(maj_locator)
+
+    min_locator = MultipleLocator(np.pi / 3)
+    x_axis.set_minor_locator(min_locator)
+
+    maj_x_formatter = FuncFormatter(format_pi(1))
+    x_axis.set_major_formatter(maj_x_formatter)
 
 
 def init_anim():
