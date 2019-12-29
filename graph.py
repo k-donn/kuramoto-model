@@ -24,7 +24,7 @@ X_LIM = 8*np.pi
 def format_pi(denominator):
     """Return a formatting function that uses the denominator provided
 
-    denominator : 
+    denominator :
 
     Returns
     -------
@@ -76,15 +76,19 @@ def format_axes(axes):
     axes.text(X_LIM - np.pi * 2, 0.9, f"Coupling: K={K_CONST}", zorder=4)
 
     x_axis = axes.get_xaxis()
+    y_axis = axes.get_yaxis()
 
-    maj_locator = MultipleLocator(np.pi)
-    x_axis.set_major_locator(maj_locator)
+    x_maj_locator = MultipleLocator(np.pi)
+    x_axis.set_major_locator(x_maj_locator)
 
-    min_locator = MultipleLocator(np.pi / 3)
-    x_axis.set_minor_locator(min_locator)
+    x_min_locator = MultipleLocator(np.pi / 3)
+    x_axis.set_minor_locator(x_min_locator)
 
-    maj_x_formatter = FuncFormatter(format_pi(1))
-    x_axis.set_major_formatter(maj_x_formatter)
+    x_maj_formatter = FuncFormatter(format_pi(1))
+    x_axis.set_major_formatter(x_maj_formatter)
+
+    y_maj_locator = MultipleLocator(0.5)
+    y_axis.set_major_locator(y_maj_locator)
 
 
 def init_anim():
