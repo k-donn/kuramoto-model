@@ -191,7 +191,7 @@ def main():
 
     anim.save(f"recordings/{len(lines)}lines-{K_CONST}.mp4", writer=writer)
 
-    plt.show()
+    # plt.show()
 
 
 if __name__ == "__main__":
