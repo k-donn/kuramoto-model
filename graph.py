@@ -4,44 +4,54 @@ python graph.py
 description:
 An animation of synchronization of sine functions
 """
-from operator import itemgetter
 
 # TODO
 # Add type hints and type docstrings
+from operator import itemgetter
+from typing import Callable, Dict, List, NoReturn, Union
+
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.animation import FFMpegWriter, FuncAnimation
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure
+from matplotlib.lines import Line2D
 from matplotlib.ticker import FuncFormatter, MultipleLocator
 
 K_CONST = 0.1
 X_LIM = 8*np.pi
 
+FuncLine = Dict[str, Union[Line2D, int, List[float]]]
 
-def format_pi(denominator):
+
+def format_pi(denominator: int) -> Callable:
     """Return a formatting function that uses the denominator provided
 
     Parameters
     ----------
 
-    denominator :
+    denominator : `int`
+        The denominator in front of pi in the returned func
 
     Returns
     -------
-
+    `Callable`
+        The function that turns a value into a multiple of (denominator*pi)
     """
-    def multiple_of_pi(value, _position):
+    def multiple_of_pi(value: float, _position: float) -> str:
         """Return the multiple that value is of (pi*denominator)
 
         Parameters
         ----------
-        value :
-
-        _position :
-
+        value : `float`
+            The value to be turned into a multiple
+        \_position : `float`
+            The position of the value on the graph
         Returns
         -------
-
+        `str`
+            A string with the multiple joined to a pi character
         """
         res = ""
         mult = int(value/(denominator * np.pi))
@@ -55,23 +65,19 @@ def format_pi(denominator):
     return multiple_of_pi
 
 
-def format_plt():
+def format_plt() -> NoReturn:
     """Change any global style params"""
     mpl.rcParams["font.family"] = "Poppins"
     plt.style.use("ggplot")
 
 
-def format_axes(axes):
+def format_axes(axes: Axes) -> NoReturn:
     """Adjust the sizing of the plot's axes.
 
     Parameters
     ----------
-    axes :
-
-
-    Returns
-    -------
-
+    axes : `Axes`
+        The axes object describing the plot's axes
     """
     axes.set_xlim(0, X_LIM)
     axes.set_ylim(-1.05, 1.05)
@@ -99,20 +105,22 @@ def format_axes(axes):
     y_axis.set_major_locator(y_maj_locator)
 
 
-def sum_of_phase_diffs(target_index, lines):
+def sum_of_phase_diffs(target_index: int, lines: List[FuncLine]) -> float:
     """Return the sum of the sines of the differences between
     all other elements and the target element
 
     Parameters
     ----------
 
-    target_key :
-
-    target_dict :
-
+    target_index : `int`
+        The index of the line to be compared against the others
+    lines : `List[FuncLine]`
+        The list of all lines
     Returns
     -------
-
+    `float`
+        The sum of the sines of the differences between
+        all other elements and the target element
     """
     res = 0
     target_value = lines[target_index]["phase"]
@@ -122,49 +130,53 @@ def sum_of_phase_diffs(target_index, lines):
     return res
 
 
-def init_anim():
+def init_anim() -> List:
     """Initialize the animation"""
     return []
 
 
-def animate(frame, xdata, line_props):
+def animate(frame: int, xdata: List[float], lines: List[FuncLine]) -> List[Line2D]:
     """Redraw all artists on the plot.
 
     Parameters
     ----------
-    frame :
-
-    xdata :
-
-    line_props :
+    frame : `int`
+        The current frame number
+    xdata : `List[float]`
+        The current list of all x-values
+    lines : `List[FuncLine]`
+        The list representing the functions being plotted,
+        their past y-values, and line objects describing the artists
 
 
     Returns
     -------
-
+    `List[Line2D]`
+        The line artists needed for blitting
     """
     xdata.append(frame)
 
-    for i, line in enumerate(line_props):
+    for i, line in enumerate(lines):
         line["phase"] = line["phase"] + K_CONST * \
-            sum_of_phase_diffs(i, line_props)
+            sum_of_phase_diffs(i, lines)
         line["data"].append(np.sin(frame + line["phase"]))
         line["line"].set_data(xdata, line["data"])
 
-    return list(map(itemgetter("line"), line_props))
+    return list(map(itemgetter("line"), lines))
 
 
-def main():
+def main() -> NoReturn:
     """Run all executable code"""
     format_plt()
 
-    fig = plt.figure(figsize=(10.5, 6.4), dpi=225)
-    axes = fig.add_subplot(111)
+    fig: Figure = plt.figure(figsize=(10.5, 6.4), dpi=225)
+    axes: Axes = fig.add_subplot(111)
+    print(type(axes))
     format_axes(axes)
 
-    xdata = []
+    xdata: List[float] = []
 
-    lines = []
+    lines: List[FuncLine] = []
     lines.append({"line": plt.plot([], [], lw=2, animated=True, color="r")[0],
                   "phase": 0, "coefficient": 1, "data": []})
     lines.append({"line": plt.plot([], [], lw=2, animated=True, color="g")[0],
@@ -189,7 +201,7 @@ def main():
 
     anim.save(f"recordings/{len(lines)}lines-{K_CONST}.mp4", writer=writer)
 
-    # plt.show()
+    plt.close()
 
 
 if __name__ == "__main__":
