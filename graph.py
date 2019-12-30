@@ -164,17 +164,15 @@ def main():
 
     xdata = []
 
-    phases = [0, 0.5*np.pi, np.pi, -0.5*np.pi]
-
     lines = []
-    lines.append(*plt.plot([], [], lw=2, animated=True, color="r"))
-    lines.append(*plt.plot([], [], lw=2, animated=True, color="g"))
-    lines.append(*plt.plot([], [], lw=2, animated=True, color="b"))
-    lines.append(*plt.plot([], [], lw=2, animated=True, color="c"))
-
-    line_props = []
-    for i, line in enumerate(lines):
-        line_props.append({"phase": phases[i], "data": [], "line": line})
+    lines.append({"line": plt.plot([], [], lw=2, animated=True, color="r")[0],
+                  "phase": 0, "coefficient": 1, "data": []})
+    lines.append({"line": plt.plot([], [], lw=2, animated=True, color="g")[0],
+                  "phase": 0.5*np.pi, "coefficient": 1, "data": []})
+    lines.append({"line": plt.plot([], [], lw=2, animated=True, color="b")[0],
+                  "phase": np.pi, "coefficient": 1, "data": []})
+    lines.append({"line": plt.plot([], [], lw=2, animated=True, color="c")[0],
+                  "phase": -0.5*np.pi, "coefficient": 1, "data": []})
 
     plt.subplots_adjust(top=0.88,
                         bottom=0.11,
@@ -183,11 +181,11 @@ def main():
                         hspace=0.2,
                         wspace=0.2)
 
-    writer = FFMpegWriter(fps=40, bitrate=250000,
-                          metadata=dict(author="/u/ilikeplanes86"))
+    writer = FFMpegWriter(fps=40, bitrate=250000, extra_args=["-minrate", "650k", "-maxrate", "1M"],
+                          metadata=dict(title="/u/ilikeplanes86"))
 
     anim = FuncAnimation(fig, animate, init_func=init_anim, frames=np.linspace(0, X_LIM, 512),
-                         interval=25, repeat=False, blit=True, fargs=(xdata, line_props))
+                         interval=25, repeat=False, blit=True, fargs=(xdata, lines))
 
     anim.save(f"recordings/{len(lines)}lines-{K_CONST}.mp4", writer=writer)
 
