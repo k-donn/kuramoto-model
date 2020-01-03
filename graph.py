@@ -6,6 +6,7 @@ An animation of synchronization of sine functions
 """
 
 # TODO
+# Animate drawing of original lines instead of drawing all at once
 from operator import itemgetter
 from typing import Callable, Dict, List, NoReturn, Union
 
