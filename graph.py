@@ -6,7 +6,6 @@ An animation of synchronization of sine functions
 """
 
 # TODO
-# Animate drawing of original lines instead of drawing all at once
 from operator import itemgetter
 from typing import Callable, Dict, List, NoReturn, Union
 
@@ -130,18 +129,21 @@ def sum_of_phase_diffs(target_index: int, lines: List[FuncLine]) -> float:
     return res
 
 
-def plot_normal_lines(lines: List[FuncLine], xdata: List[float]) -> NoReturn:
-    """Plot the sine funcs as though no phase shifting occured.
-    Parameters
-    ----------
-    lines : `List[FuncLine]`
-        The original lines objects
-    xdata : `List[float]`
-        The x-values to be used to calculate y-values
+def copy_lines(lines: List[FuncLine]) -> List[FuncLine]:
+    """Create a list of lines that don't change phase.
+
+    Returns
+    -------
+    `List[FuncLine]`
+        The list of non-phase changing lines
     """
+    res: List[FuncLine] = []
     for line in lines:
-        plt.plot(xdata, np.sin((line["coefficient"] * xdata) + line["phase"]), "o",
-                 markersize=0.8, color=line["line"].get_color(), zorder=1)
+        res.append(
+            {"line": plt.plot([], [], "o", markersize=0.8, animated=True,
+                              color=line["line"].get_color(), zorder=1)[0],
+             "phase": line["phase"], "coefficient": line["coefficient"], "data": []})
+    return res
 
 
 def init_anim() -> List:
@@ -149,7 +151,10 @@ def init_anim() -> List:
     return []
 
 
-def animate(frame: float, xdata: List[float], lines: List[FuncLine]) -> List[Line2D]:
+def animate(
+        frame: float, xdata: List[float],
+        lines: List[FuncLine],
+        orig_lines: List[FuncLine]) -> List[Line2D]:
     """Redraw all artists on the plot.
 
     Parameters
@@ -176,14 +181,18 @@ def animate(frame: float, xdata: List[float], lines: List[FuncLine]) -> List[Lin
         line["data"].append(np.sin((line["coefficient"] * frame) + line["phase"]))
         line["line"].set_data(xdata, line["data"])
 
-    return list(map(itemgetter("line"), lines))
+    for orig_line in orig_lines:
+        orig_line["data"].append(np.sin((orig_line["coefficient"] * frame) + orig_line["phase"]))
+        orig_line["line"].set_data(xdata, orig_line["data"])
+
+    return list(map(itemgetter("line"), lines)) + list(map(itemgetter("line"), orig_lines))
 
 
 def main() -> NoReturn:
     """Run all executable code"""
     format_plt()
 
-    fig: Figure = plt.figure(figsize=(10.5, 6.4), dpi=225)
+    fig: Figure = plt.figure(figsize=(16, 9), dpi=120)
     axes: Axes = fig.add_subplot(111)
 
     format_axes(axes)
@@ -194,26 +203,19 @@ def main() -> NoReturn:
     lines.append({"line": plt.plot([], [], lw=2, animated=True, color="r")[0],
                   "phase": 0, "coefficient": 1, "data": []})
     lines.append({"line": plt.plot([], [], lw=2, animated=True, color="g")[0],
-                  "phase": 0.5*np.pi, "coefficient": 1, "data": []})
+                  "phase": np.pi/2, "coefficient": 1, "data": []})
     lines.append({"line": plt.plot([], [], lw=2, animated=True, color="b")[0],
                   "phase": np.pi, "coefficient": 1, "data": []})
-
-    plt.subplots_adjust(top=0.88,
-                        bottom=0.11,
-                        left=0.125,
-                        right=0.9,
-                        hspace=0.2,
-                        wspace=0.2)
 
     writer = FFMpegWriter(fps=40, bitrate=250000, extra_args=["-minrate", "650k", "-maxrate", "1M"],
                           metadata=dict(title="/u/ilikeplanes86"))
 
     frames = np.linspace(0, X_LIM, 512)
 
-    plot_normal_lines(lines, frames)
+    orig_lines = copy_lines(lines)
 
     anim = FuncAnimation(fig, animate, init_func=init_anim, frames=frames,
-                         interval=25, repeat=False, blit=True, fargs=(xdata, lines))
+                         interval=25, repeat=False, blit=True, fargs=(xdata, lines, orig_lines))
 
     anim.save(f"recordings/{len(lines)}lines-{K_CONST}.mp4", writer=writer)
 
