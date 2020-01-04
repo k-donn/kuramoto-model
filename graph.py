@@ -21,6 +21,7 @@ from matplotlib.ticker import FuncFormatter, MultipleLocator
 K_CONST = 0.006
 X_LIM = 8*np.pi
 
+# A dict representing a line being animated
 FuncLine = Dict[str, Union[Line2D, int, List[float]]]
 
 
