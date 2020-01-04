@@ -2,3 +2,4 @@
 *.xlsx
 *.old.py
 .DS_STORE
+*.pyc
