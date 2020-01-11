@@ -26,7 +26,7 @@ FuncLine = Dict[str, Union[Line2D, int, List[float]]]
 
 
 def format_pi(denominator: int) -> Callable:
-    """Return a formatting function that uses the denominator provided
+    """Return a formatting function that uses the denominator provided.
 
     Parameters
     ----------
@@ -38,9 +38,10 @@ def format_pi(denominator: int) -> Callable:
     -------
     `Callable`
         The function that turns a value into a multiple of (denominator*pi)
+
     """
     def multiple_of_pi(value: float, _position: float) -> str:
-        """Return the multiple that value is of (pi*denominator)
+        r"""Return the multiple that value is of (pi*denominator)
 
         Parameters
         ----------
@@ -52,6 +53,7 @@ def format_pi(denominator: int) -> Callable:
         -------
         `str`
             A string with the multiple joined to a pi character
+
         """
         res = ""
         mult = int(value/(denominator * np.pi))
@@ -66,7 +68,7 @@ def format_pi(denominator: int) -> Callable:
 
 
 def format_plt() -> NoReturn:
-    """Change any global style params"""
+    """Change any global style params."""
     mpl.rcParams["font.family"] = "Poppins"
     plt.style.use("ggplot")
 
@@ -78,6 +80,7 @@ def format_axes(axes: Axes) -> NoReturn:
     ----------
     axes : `Axes`
         The axes object describing the plot's axes
+
     """
     axes.set_xlim(0, X_LIM)
     axes.set_ylim(-1.05, 1.05)
@@ -106,8 +109,8 @@ def format_axes(axes: Axes) -> NoReturn:
 
 
 def sum_of_phase_diffs(target_index: int, lines: List[FuncLine]) -> float:
-    """Return the sum of the sines of the differences between
-    all other elements and the target element
+    """Return the sum of the sines of the differences between all other elements
+    and the target element.
 
     Parameters
     ----------
@@ -121,6 +124,7 @@ def sum_of_phase_diffs(target_index: int, lines: List[FuncLine]) -> float:
     `float`
         The sum of the sines of the differences between
         all other elements and the target element
+
     """
     res = 0
     target_value = lines[target_index]["phase"]
@@ -137,6 +141,7 @@ def copy_lines(lines: List[FuncLine]) -> List[FuncLine]:
     -------
     `List[FuncLine]`
         The list of non-phase changing lines
+
     """
     res: List[FuncLine] = []
     for line in lines:
@@ -173,6 +178,7 @@ def animate(
     -------
     `List[Line2D]`
         The line artists needed for blitting
+
     """
     xdata.append(frame)
 
@@ -190,7 +196,7 @@ def animate(
 
 
 def main() -> NoReturn:
-    """Run all executable code"""
+    """Run all executable code."""
     format_plt()
 
     fig: Figure = plt.figure(figsize=(16, 9), dpi=120)
