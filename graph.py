@@ -6,6 +6,7 @@ An animation of synchronization of sine functions
 """
 
 # TODO
+import argparse
 from operator import itemgetter
 from typing import Callable, Dict, List, NoReturn, Union
 
@@ -201,6 +202,12 @@ def main() -> NoReturn:
 
     fig: Figure = plt.figure(figsize=(16, 9), dpi=120)
     axes: Axes = fig.add_subplot(111)
+    parser = argparse.ArgumentParser(
+        prog="python3.7 graph.py", description="An animation of synchronization of sine functions")
+    parser.add_argument("-d", "--debug", action="store_true",
+                        help="Show the plot instead of writing to a file")
+
+    args = parser.parse_args()
 
     format_axes(axes)
 
@@ -212,7 +219,7 @@ def main() -> NoReturn:
     lines.append({"line": plt.plot([], [], lw=2, animated=True, color="g")[0],
                   "phase": np.pi/2, "coefficient": 1, "data": []})
     lines.append({"line": plt.plot([], [], lw=2, animated=True, color="b")[0],
-                  "phase": np.pi, "coefficient": 1, "data": []})
+                  "phase": 0.75*np.pi, "coefficient": 1, "data": []})
 
     writer = FFMpegWriter(fps=40, bitrate=250000, extra_args=["-minrate", "650k", "-maxrate", "1M"],
                           metadata=dict(title="/u/ilikeplanes86"))
@@ -224,9 +231,10 @@ def main() -> NoReturn:
     anim = FuncAnimation(fig, animate, init_func=init_anim, frames=frames,
                          interval=25, repeat=False, blit=True, fargs=(xdata, lines, orig_lines))
 
-    anim.save(f"recordings/{len(lines)}lines-{K_CONST}.mp4", writer=writer)
-
-    plt.close()
+    if args.debug:
+        plt.show()
+    else:
+        anim.save(f"recordings/{len(lines)}lines-{K_CONST}.mp4", writer=writer)
 
 
 if __name__ == "__main__":
