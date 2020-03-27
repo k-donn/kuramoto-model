@@ -6,9 +6,10 @@ An animation of synchronization of sine functions
 """
 
 # TODO
+# Use command line arguments for K-constant
 import argparse
 from operator import itemgetter
-from typing import Callable, Dict, List, NoReturn, Union
+from typing import Callable, TypedDict, List
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -22,8 +23,15 @@ from matplotlib.ticker import FuncFormatter, MultipleLocator
 K_CONST = 0.006
 X_LIM = 8*np.pi
 
-# A dict representing a line being animated
-FuncLine = Dict[str, Union[Line2D, int, List[float]]]
+# FuncLine = Dict[str, Union[Line2D, int, List[float]]]
+
+
+class FuncLine(TypedDict):
+    """A dict representing a line being animated"""
+    line: Line2D
+    phase: float
+    coefficient: float
+    data: List[float]
 
 
 def format_pi(denominator: int) -> Callable:
@@ -68,13 +76,13 @@ def format_pi(denominator: int) -> Callable:
     return multiple_of_pi
 
 
-def format_plt() -> NoReturn:
+def format_plt() -> None:
     """Change any global style params."""
     mpl.rcParams["font.family"] = "Poppins"
     plt.style.use("ggplot")
 
 
-def format_axes(axes: Axes) -> NoReturn:
+def format_axes(axes: Axes) -> None:
     """Adjust the sizing of the plot's axes.
 
     Parameters
@@ -196,7 +204,7 @@ def animate(
     return list(map(itemgetter("line"), lines)) + list(map(itemgetter("line"), orig_lines))
 
 
-def main() -> NoReturn:
+def main() -> None:
     """Run all executable code."""
     format_plt()
 

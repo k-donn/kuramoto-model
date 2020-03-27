@@ -5,7 +5,7 @@ An animation of sine functions using the [Kuramoto Model](https://en.wikipedia.o
 ## Usage
 
 ```
-usage: python3.7 graph.py [-h] [-d]
+usage: python3.8 graph.py [-h] [-d]
 
 An animation of synchronization of sine functions
 
@@ -13,6 +13,23 @@ optional arguments:
   -h, --help   show this help message and exit
   -d, --debug  Show the plot instead of writing to a file
 ```
+
+## Example
+
+![Example GIF](somewhere)
+
+## Running
+
+-   Create `conda` env from spec-file.txt (see [Install Conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html))
+-   `pip` can also be configured with requirements.txt
+-   From the root of the folder,
+
+```
+python3.8 ./graph.py
+```
+
+-   It will generate the files into ./recordings/
+-   Or use `-d` and it will display the matplotlib window
 
 ## Meta
 
