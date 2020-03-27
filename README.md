@@ -16,7 +16,7 @@ optional arguments:
 
 ## Example
 
-![Example GIF](somewhere)
+![Example GIF](https://raw.githubusercontent.com/k-donn/kuramoto-model/master/recordings/preview.gif)
 
 ## Running
 
