@@ -1,17 +1,18 @@
 """
 An animation of synchronization of sine functions.
 
-usage: python3.8 graph.py [-h] [-d]
+usage: python3.8 graph.py [-h] [-d] K
+
+positional arguments:
+  K            Coupling constant for the sine functions
 
 optional arguments:
   -h, --help   show this help message and exit
   -d, --debug  Show the plot instead of writing to a file
+
 """
 
 # TODO
-# Update PYLINT conf
-# Use command line arguments for K-constant
-# Use proper UTF way to put symbols like pi
 import argparse
 from operator import itemgetter
 from typing import Callable, TypedDict, List
@@ -25,8 +26,7 @@ from matplotlib.figure import Figure
 from matplotlib.lines import Line2D
 from matplotlib.ticker import FuncFormatter, MultipleLocator
 
-K_CONST = 0.006
-X_LIM: float = 8*np.pi
+X_LIM: float = 8 * np.pi
 
 
 class FuncLine(TypedDict):
@@ -68,13 +68,13 @@ def format_pi(denominator: int) -> Callable:
 
         """
         res = ""
-        mult = int(value/(denominator * np.pi))
+        mult = int(value / (denominator * np.pi))
         if mult == 0:
             res = "0"
         elif mult == 1:
-            res = "π"
+            res = "\u03C0"
         else:
-            res = f"{mult}π"
+            res = f"{mult}\u03C0"
         return res
     return multiple_of_pi
 
@@ -85,13 +85,15 @@ def format_plt() -> None:
     plt.style.use("ggplot")
 
 
-def format_axes(axes: Axes) -> None:
+def format_axes(axes: Axes, k_const: float) -> None:
     """Adjust the sizing of the plot's axes.
 
     Parameters
     ----------
     axes : `Axes`
         The axes object describing the plot's axes
+    k_const: `float`
+        The coupling constant of the sine functions
 
     """
     axes.set_xlim(0, X_LIM)
@@ -102,7 +104,7 @@ def format_axes(axes: Axes) -> None:
     axes.set_xlabel("X Values")
     axes.set_ylabel("Y Values")
 
-    axes.text(X_LIM - np.pi * 2, 0.9, f"Coupling: K={K_CONST}")
+    axes.text(X_LIM - np.pi * 2, 0.9, f"Coupling: K={k_const}")
 
     x_axis = axes.get_xaxis()
     y_axis = axes.get_yaxis()
@@ -173,7 +175,8 @@ def init_anim() -> List:
 def animate(
         frame: float, xdata: List[float],
         lines: List[FuncLine],
-        orig_lines: List[FuncLine]) -> List[Line2D]:
+        orig_lines: List[FuncLine],
+        k_const: float) -> List[Line2D]:
     """Redraw all artists on the plot.
 
     Parameters
@@ -185,7 +188,8 @@ def animate(
     lines : `List[FuncLine]`
         The list representing the functions being plotted,
         their past y-values, and line objects describing the artists
-
+    k_const: `float`
+        The coupling constant of the sine functions
 
     Returns
     -------
@@ -196,16 +200,19 @@ def animate(
     xdata.append(frame)
 
     for i, line in enumerate(lines):
-        line["phase"] = line["phase"] + K_CONST * \
+        line["phase"] = line["phase"] + k_const * \
             sum_of_phase_diffs(i, lines)
-        line["data"].append(np.sin((line["coefficient"] * frame) + line["phase"]))
+        line["data"].append(
+            np.sin((line["coefficient"] * frame) + line["phase"]))
         line["line"].set_data(xdata, line["data"])
 
     for orig_line in orig_lines:
-        orig_line["data"].append(np.sin((orig_line["coefficient"] * frame) + orig_line["phase"]))
+        orig_line["data"].append(
+            np.sin((orig_line["coefficient"] * frame) + orig_line["phase"]))
         orig_line["line"].set_data(xdata, orig_line["data"])
 
-    return list(map(itemgetter("line"), lines)) + list(map(itemgetter("line"), orig_lines))
+    return list(map(itemgetter("line"), lines)) + \
+        list(map(itemgetter("line"), orig_lines))
 
 
 def main() -> None:
@@ -215,13 +222,17 @@ def main() -> None:
     fig: Figure = plt.figure(figsize=(16, 9), dpi=120)
     axes: Axes = fig.add_subplot(111)
     parser = argparse.ArgumentParser(
-        prog="python3.8 graph.py", description="An animation of synchronization of sine functions")
+        prog="python3.8 graph.py", description="An animation of synchronization of sine functions.")
     parser.add_argument("-d", "--debug", action="store_true",
                         help="Show the plot instead of writing to a file")
+    parser.add_argument("coupling", metavar="K", type=float,
+                        help="Coupling constant for the sine functions")
 
     args = parser.parse_args()
 
-    format_axes(axes)
+    k_const: float = args.coupling
+
+    format_axes(axes, k_const)
 
     xdata: List[float] = []
 
@@ -229,23 +240,25 @@ def main() -> None:
     lines.append({"line": plt.plot([], [], lw=2, animated=True, color="r")[0],
                   "phase": 0, "coefficient": 1, "data": []})
     lines.append({"line": plt.plot([], [], lw=2, animated=True, color="g")[0],
-                  "phase": np.pi/2, "coefficient": 1, "data": []})
+                  "phase": np.pi / 2, "coefficient": 1, "data": []})
     lines.append({"line": plt.plot([], [], lw=2, animated=True, color="b")[0],
-                  "phase": 0.75*np.pi, "coefficient": 1, "data": []})
+                  "phase": 0.75 * np.pi, "coefficient": 1, "data": []})
 
-    writer = FFMpegWriter(fps=40, bitrate=250000, extra_args=["-minrate", "650k", "-maxrate", "1M"])
+    writer = FFMpegWriter(fps=40, bitrate=250000,
+                          extra_args=["-minrate", "650k", "-maxrate", "1M"])
 
     frames = np.linspace(0, X_LIM, 512)
 
     orig_lines = copy_lines(lines)
 
     anim = FuncAnimation(fig, animate, init_func=init_anim, frames=frames,
-                         interval=25, repeat=False, blit=True, fargs=(xdata, lines, orig_lines))
+                         interval=25, repeat=False, blit=True,
+                         fargs=(xdata, lines, orig_lines, k_const))
 
     if args.debug:
         plt.show()
     else:
-        anim.save(f"recordings/{len(lines)}lines-{K_CONST}.mp4", writer=writer)
+        anim.save(f"recordings/kuramoto-model.mp4", writer=writer)
 
 
 if __name__ == "__main__":
