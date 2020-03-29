@@ -1,12 +1,17 @@
 """
-usage:
-python graph.py
-description:
-An animation of synchronization of sine functions
+An animation of synchronization of sine functions.
+
+usage: python3.8 graph.py [-h] [-d]
+
+optional arguments:
+  -h, --help   show this help message and exit
+  -d, --debug  Show the plot instead of writing to a file
 """
 
 # TODO
+# Update PYLINT conf
 # Use command line arguments for K-constant
+# Use proper UTF way to put symbols like pi
 import argparse
 from operator import itemgetter
 from typing import Callable, TypedDict, List
@@ -21,13 +26,12 @@ from matplotlib.lines import Line2D
 from matplotlib.ticker import FuncFormatter, MultipleLocator
 
 K_CONST = 0.006
-X_LIM = 8*np.pi
-
-# FuncLine = Dict[str, Union[Line2D, int, List[float]]]
+X_LIM: float = 8*np.pi
 
 
 class FuncLine(TypedDict):
-    """A dict representing a line being animated"""
+    """A dict representing a line being animated."""
+
     line: Line2D
     phase: float
     coefficient: float
@@ -39,7 +43,6 @@ def format_pi(denominator: int) -> Callable:
 
     Parameters
     ----------
-
     denominator : `int`
         The denominator in front of pi in the returned func
 
@@ -50,13 +53,13 @@ def format_pi(denominator: int) -> Callable:
 
     """
     def multiple_of_pi(value: float, _position: float) -> str:
-        r"""Return the multiple that value is of (pi*denominator)
+        """Return the multiple that passed value is of (pi*denominator).
 
         Parameters
         ----------
         value : `float`
             The value to be turned into a multiple
-        \_position : `float`
+        _position : `float`
             The position of the value on the graph
         Returns
         -------
@@ -118,12 +121,13 @@ def format_axes(axes: Axes) -> None:
 
 
 def sum_of_phase_diffs(target_index: int, lines: List[FuncLine]) -> float:
-    """Return the sum of the sines of the differences between all other elements
+    """Calculate value needed for coupling of sine functions.
+
+    Return the sum of the sines of the differences between all other elements
     and the target element.
 
     Parameters
     ----------
-
     target_index : `int`
         The index of the line to be compared against the others
     lines : `List[FuncLine]`
@@ -211,7 +215,7 @@ def main() -> None:
     fig: Figure = plt.figure(figsize=(16, 9), dpi=120)
     axes: Axes = fig.add_subplot(111)
     parser = argparse.ArgumentParser(
-        prog="python3.7 graph.py", description="An animation of synchronization of sine functions")
+        prog="python3.8 graph.py", description="An animation of synchronization of sine functions")
     parser.add_argument("-d", "--debug", action="store_true",
                         help="Show the plot instead of writing to a file")
 
@@ -229,8 +233,7 @@ def main() -> None:
     lines.append({"line": plt.plot([], [], lw=2, animated=True, color="b")[0],
                   "phase": 0.75*np.pi, "coefficient": 1, "data": []})
 
-    writer = FFMpegWriter(fps=40, bitrate=250000, extra_args=["-minrate", "650k", "-maxrate", "1M"],
-                          metadata=dict(title="/u/ilikeplanes86"))
+    writer = FFMpegWriter(fps=40, bitrate=250000, extra_args=["-minrate", "650k", "-maxrate", "1M"])
 
     frames = np.linspace(0, X_LIM, 512)
 
