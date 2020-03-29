@@ -5,9 +5,12 @@ An animation of sine functions using the [Kuramoto Model](https://en.wikipedia.o
 ## Usage
 
 ```
-usage: python3.8 graph.py [-h] [-d]
+usage: python3.8 graph.py [-h] [-d] K
 
-An animation of synchronization of sine functions
+An animation of synchronization of sine functions.
+
+positional arguments:
+  K            Coupling constant for the sine functions
 
 optional arguments:
   -h, --help   show this help message and exit
