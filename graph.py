@@ -13,6 +13,9 @@ optional arguments:
 """
 
 # TODO
+# Move main() initialization to init_anim()
+# Fix newline docstring formatting issue
+
 import argparse
 from operator import itemgetter
 from typing import Callable, TypedDict, List
