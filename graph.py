@@ -13,8 +13,8 @@ optional arguments:
 """
 
 # TODO
+# Move numpy functions to import math functions
 # Move main() initialization to init_anim()
-# Fix newline docstring formatting issue
 
 import argparse
 from operator import itemgetter
@@ -62,6 +62,7 @@ def format_pi(denominator: int) -> Callable:
         ----------
         value : `float`
             The value to be turned into a multiple
+
         _position : `float`
             The position of the value on the graph
         Returns
@@ -95,7 +96,8 @@ def format_axes(axes: Axes, k_const: float) -> None:
     ----------
     axes : `Axes`
         The axes object describing the plot's axes
-    k_const: `float`
+
+    k_const : `float`
         The coupling constant of the sine functions
 
     """
@@ -135,8 +137,10 @@ def sum_of_phase_diffs(target_index: int, lines: List[FuncLine]) -> float:
     ----------
     target_index : `int`
         The index of the line to be compared against the others
+
     lines : `List[FuncLine]`
         The list of all lines
+
     Returns
     -------
     `float`
@@ -186,12 +190,15 @@ def animate(
     ----------
     frame : `float`
         The current frame number
+
     xdata : `List[float]`
         The current list of all x-values
+
     lines : `List[FuncLine]`
         The list representing the functions being plotted,
         their past y-values, and line objects describing the artists
-    k_const: `float`
+
+    k_const : `float`
         The coupling constant of the sine functions
 
     Returns
