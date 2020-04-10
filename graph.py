@@ -13,12 +13,14 @@ optional arguments:
 """
 
 # TODO
-# Move numpy functions to import math functions
+# Use MultiplePi class from cross-product-anim for format_pi
+# Add legend for current vs. unchanged lines
 # Move main() initialization to init_anim()
 
 import argparse
+import math
 from operator import itemgetter
-from typing import Callable, TypedDict, List
+from typing import Callable, List, TypedDict
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -29,7 +31,7 @@ from matplotlib.figure import Figure
 from matplotlib.lines import Line2D
 from matplotlib.ticker import FuncFormatter, MultipleLocator
 
-X_LIM: float = 8 * np.pi
+X_LIM: float = 8 * math.pi
 
 
 class FuncLine(TypedDict):
@@ -72,7 +74,7 @@ def format_pi(denominator: int) -> Callable:
 
         """
         res = ""
-        mult = int(value / (denominator * np.pi))
+        mult = int(value / (denominator * math.pi))
         if mult == 0:
             res = "0"
         elif mult == 1:
@@ -109,15 +111,15 @@ def format_axes(axes: Axes, k_const: float) -> None:
     axes.set_xlabel("X Values")
     axes.set_ylabel("Y Values")
 
-    axes.text(X_LIM - np.pi * 2, 0.9, f"Coupling: K={k_const}")
+    axes.text(X_LIM - math.pi * 2, 0.9, f"Coupling: K={k_const}")
 
     x_axis = axes.get_xaxis()
     y_axis = axes.get_yaxis()
 
-    x_maj_locator = MultipleLocator(np.pi)
+    x_maj_locator = MultipleLocator(math.pi)
     x_axis.set_major_locator(x_maj_locator)
 
-    x_min_locator = MultipleLocator(np.pi / 3)
+    x_min_locator = MultipleLocator(math.pi / 3)
     x_axis.set_minor_locator(x_min_locator)
 
     x_maj_formatter = FuncFormatter(format_pi(1))
@@ -152,7 +154,7 @@ def sum_of_phase_diffs(target_index: int, lines: List[FuncLine]) -> float:
     target_value = lines[target_index]["phase"]
     for i, line in enumerate(lines):
         if i != target_index:
-            res += np.sin(line["phase"] - target_value)
+            res += math.sin(line["phase"] - target_value)
     return res
 
 
@@ -213,12 +215,12 @@ def animate(
         line["phase"] = line["phase"] + k_const * \
             sum_of_phase_diffs(i, lines)
         line["data"].append(
-            np.sin((line["coefficient"] * frame) + line["phase"]))
+            math.sin((line["coefficient"] * frame) + line["phase"]))
         line["line"].set_data(xdata, line["data"])
 
     for orig_line in orig_lines:
         orig_line["data"].append(
-            np.sin((orig_line["coefficient"] * frame) + orig_line["phase"]))
+            math.sin((orig_line["coefficient"] * frame) + orig_line["phase"]))
         orig_line["line"].set_data(xdata, orig_line["data"])
 
     return list(map(itemgetter("line"), lines)) + \
@@ -250,9 +252,9 @@ def main() -> None:
     lines.append({"line": plt.plot([], [], lw=2, animated=True, color="r")[0],
                   "phase": 0, "coefficient": 1, "data": []})
     lines.append({"line": plt.plot([], [], lw=2, animated=True, color="g")[0],
-                  "phase": np.pi / 2, "coefficient": 1, "data": []})
+                  "phase": math.pi / 2, "coefficient": 1, "data": []})
     lines.append({"line": plt.plot([], [], lw=2, animated=True, color="b")[0],
-                  "phase": 0.75 * np.pi, "coefficient": 1, "data": []})
+                  "phase": 0.75 * math.pi, "coefficient": 1, "data": []})
 
     writer = FFMpegWriter(fps=40, bitrate=250000,
                           extra_args=["-minrate", "650k", "-maxrate", "1M"])
