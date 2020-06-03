@@ -13,7 +13,6 @@ optional arguments:
 """
 
 # TODO
-# Use MultiplePi class from cross-product-anim for format_pi
 # Add legend for current vs. unchanged lines
 # Move main() initialization to init_anim()
 
@@ -25,6 +24,7 @@ from typing import Callable, List, TypedDict
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
+from matplot_fmt_pi import MultiplePi
 from matplotlib.animation import FFMpegWriter, FuncAnimation
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
@@ -41,48 +41,6 @@ class FuncLine(TypedDict):
     phase: float
     coefficient: float
     data: List[float]
-
-
-def format_pi(denominator: int) -> Callable:
-    """Return a formatting function that uses the denominator provided.
-
-    Parameters
-    ----------
-    denominator : `int`
-        The denominator in front of pi in the returned func
-
-    Returns
-    -------
-    `Callable`
-        The function that turns a value into a multiple of (denominator*pi)
-
-    """
-    def multiple_of_pi(value: float, _position: float) -> str:
-        """Return the multiple that passed value is of (pi*denominator).
-
-        Parameters
-        ----------
-        value : `float`
-            The value to be turned into a multiple
-
-        _position : `float`
-            The position of the value on the graph
-        Returns
-        -------
-        `str`
-            A string with the multiple joined to a pi character
-
-        """
-        res = ""
-        mult = int(value / (denominator * math.pi))
-        if mult == 0:
-            res = "0"
-        elif mult == 1:
-            res = "\u03C0"
-        else:
-            res = f"{mult}\u03C0"
-        return res
-    return multiple_of_pi
 
 
 def format_plt() -> None:
@@ -113,17 +71,17 @@ def format_axes(axes: Axes, k_const: float) -> None:
 
     axes.text(X_LIM - math.pi * 2, 0.9, f"Coupling: K={k_const}")
 
+    maj_manager = MultiplePi(denominator=1)
+    min_manager = MultiplePi(denominator=3)
+
     x_axis = axes.get_xaxis()
     y_axis = axes.get_yaxis()
 
-    x_maj_locator = MultipleLocator(math.pi)
-    x_axis.set_major_locator(x_maj_locator)
+    x_axis.set_major_locator(maj_manager.locator())
 
-    x_min_locator = MultipleLocator(math.pi / 3)
-    x_axis.set_minor_locator(x_min_locator)
+    x_axis.set_minor_locator(min_manager.locator())
 
-    x_maj_formatter = FuncFormatter(format_pi(1))
-    x_axis.set_major_formatter(x_maj_formatter)
+    x_axis.set_major_formatter(maj_manager.formatter())
 
     y_maj_locator = MultipleLocator(0.5)
     y_axis.set_major_locator(y_maj_locator)

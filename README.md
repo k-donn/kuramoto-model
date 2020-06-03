@@ -1,10 +1,10 @@
-# kuramoto-model
+# Kuramoto Model
 
 An animation of sine functions using the [Kuramoto Model](https://en.wikipedia.org/wiki/Kuramoto_model)
 
 ## Usage
 
-```
+```bash
 usage: python3.8 graph.py [-h] [-d] K
 
 An animation of synchronization of sine functions.
@@ -23,11 +23,10 @@ optional arguments:
 
 ## Running
 
--   Create `conda` env from spec-file.txt (see [Install Conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html))
--   `pip` can also be configured with requirements.txt
+-   Create `conda` env from environment.yml (see [Install Conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html))
 -   From the root of the folder,
 
-```
+```bash
 python3.8 ./graph.py
 ```
 
