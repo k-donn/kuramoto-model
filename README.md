@@ -5,7 +5,7 @@ An animation of sine functions using the [Kuramoto Model](https://en.wikipedia.o
 ## Usage
 
 ```bash
-usage: python3.8 graph.py [-h] [-d] K
+usage: python graph.py [-h] [-d] K
 
 An animation of synchronization of sine functions.
 
@@ -27,7 +27,7 @@ optional arguments:
 -   From the root of the folder,
 
 ```bash
-python3.8 ./graph.py
+python ./graph.py
 ```
 
 -   It will generate the files into ./recordings/

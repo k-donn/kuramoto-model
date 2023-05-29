@@ -1,7 +1,7 @@
 """
 An animation of synchronization of sine functions.
 
-usage: python3.8 graph.py [-h] [-d] K
+usage: python graph.py [-h] [-d] K
 
 positional arguments:
   K            Coupling constant for the sine functions
@@ -19,17 +19,17 @@ optional arguments:
 import argparse
 import math
 from operator import itemgetter
-from typing import Callable, List, TypedDict
+from typing import List, TypedDict
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-from matplot_fmt_pi import MultiplePi
+from matplot_fmt_pi.ticker import MultiplePi
 from matplotlib.animation import FFMpegWriter, FuncAnimation
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.lines import Line2D
-from matplotlib.ticker import FuncFormatter, MultipleLocator
+from matplotlib.ticker import MultipleLocator
 
 X_LIM: float = 8 * math.pi
 
@@ -108,7 +108,7 @@ def sum_of_phase_diffs(target_index: int, lines: List[FuncLine]) -> float:
         all other elements and the target element
 
     """
-    res = 0
+    res: float = 0
     target_value = lines[target_index]["phase"]
     for i, line in enumerate(lines):
         if i != target_index:
@@ -130,7 +130,8 @@ def copy_lines(lines: List[FuncLine]) -> List[FuncLine]:
         res.append(
             {"line": plt.plot([], [], "o", markersize=0.8, animated=True,
                               color=line["line"].get_color(), zorder=1)[0],
-             "phase": line["phase"], "coefficient": line["coefficient"], "data": []})
+             "phase": line["phase"], "coefficient": line["coefficient"],
+             "data": []})
     return res
 
 
@@ -192,7 +193,8 @@ def main() -> None:
     fig: Figure = plt.figure(figsize=(16, 9), dpi=120)
     axes: Axes = fig.add_subplot(111)
     parser = argparse.ArgumentParser(
-        prog="python3.8 graph.py", description="An animation of synchronization of sine functions.")
+        prog="python graph.py",
+        description="An animation of synchronization of sine functions.")
     parser.add_argument("-d", "--debug", action="store_true",
                         help="Show the plot instead of writing to a file")
     parser.add_argument("coupling", metavar="K", type=float,
@@ -228,7 +230,7 @@ def main() -> None:
     if args.debug:
         plt.show()
     else:
-        anim.save(f"recordings/kuramoto-model.mp4", writer=writer)
+        anim.save("recordings/kuramoto-model.mp4", writer=writer)
 
 
 if __name__ == "__main__":
